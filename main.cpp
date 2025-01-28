@@ -1,29 +1,23 @@
 #include <iostream>
+#include "queue.h"
 using namespace std;
 
-struct tree_node {
-    string word;
-    int number;
-    tree_node* left;
-    tree_node* right;
-    tree_node(string w, int a) : word(w), number(a), left(nullptr), right(nullptr) {}
-};
-
-struct link_node {
-    int count;
-    char word;
-    link_node* next;
-    link_node(char w = ' ', int c = 1) : word(w), count(c), next(nullptr) {}
-};
+//struct tree_node {
+//    string word;
+//    int count;
+//    tree_node* left;
+//    tree_node* right;
+//    tree_node(string w="", int a=0) : word(w), count(a), left(nullptr), right(nullptr) {}
+//};
 
 class huffman_coding {
-    link_node* head;
-
+    node* head;
+    string phrase;
 public:
-    huffman_coding() : head(nullptr) {} // مقداردهی اولیه head
+    huffman_coding(string w="") :phrase(w), head(nullptr) {}
 
-    link_node* in_list(char a) {
-        link_node* p = head;
+    node* in_list(string a) {
+        node* p = head;
         while (p != nullptr) {
             if (a == p->word) {
                 return p;
@@ -33,22 +27,22 @@ public:
         return nullptr;
     }
 
-    link_node* getter() {
+    node* getter() {
         return head;
     }
 
-    void encode(string phrase) {
-        int size = phrase.size(); // استفاده از size() برای طول رشته
+    void make_table() {
+        int size = phrase.size();
         for (int i = 0; i < size; i++) {
-            link_node* q = in_list(phrase[i]);
+            node* q = in_list(string(1, phrase[i]));
             if (q != nullptr) {
                 q->count++;
             } else {
-                link_node* p = new link_node(phrase[i]);
+               node* p = new node(string(1, phrase[i]));
                 if (head == nullptr) {
                     head = p;
                 } else {
-                    link_node* temp = head;
+                    node* temp = head;
                     while (temp->next != nullptr) {
                         temp = temp->next;
                     }
@@ -57,19 +51,54 @@ public:
             }
         }
     }
+    void huffman_tree(){
+        pr_queue q;
+        node* p = head;
+        node* root=nullptr;
+        while (p != nullptr) {
+            q.enqueue(p);
+            p = p->next;
+        }
+        node* temp=0;
+        while (!q.isempty()){
+            node* a=q.dequeue();
+            node* b=q.dequeue();
+            if(b== nullptr){
+                root=a;
+                break;
+            }
+            root=new node(b->word+a->word,a->count+b->count);
+
+            root->left=a;
+            root->right=b;
+
+            q.enqueue(root);
+
+        }
+
+        head = root;
+
+        // چاپ مقادیر
+        cout << "Root: " << head->word << "          " << head->count << endl;
+
+        if (head->left != nullptr)
+            cout << "Left: " << head->left->word << "          " << head->left->count << endl;
+
+        if (head->right != nullptr)
+            cout << "Right: " << head->right->word << "          " << head->right->count << endl;
+
+
+    }
 };
 
 int main() {
-    string name = "aaaaagfaassddffa";
+//    string name = "aaaaagfaassddffa";
 
-    huffman_coding f;
-    f.encode(name);
+    huffman_coding f("aaaaagfaassddffa");
+    f.make_table();
+    f.huffman_tree();
 
-    link_node* p = f.getter();
-    while (p != nullptr) {
-        cout << p->word << ": " << p->count << endl;
-        p = p->next;
-    }
 
     return 0;
 }
+
