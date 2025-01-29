@@ -1,7 +1,3 @@
-//
-// Created by Hamed on 1/27/2025.
-//
-
 
 
 #ifndef HUFFMAN_CODING_QUEUE_H
@@ -10,11 +6,12 @@ using namespace std;
 struct node {
     int count;
     string word;
+    string code;
     node* next;
     node* data;
     node* right;
     node* left;
-    node(string w = " ", int c = 1) : word(w), count(c), next(nullptr),right(nullptr),left(nullptr),data(nullptr) {}
+    node(string w = "", int c =0) : word(w), count(c), next(nullptr),right(nullptr),left(nullptr),data(nullptr) {}
     node(node* d):data(d), next(nullptr),right(nullptr),left(nullptr){}
 };
 
@@ -23,7 +20,7 @@ class pr_queue {
     public:
 
     void enqueue(node* a){
-//        node* c=new node(a->word,a->count);// copy of node
+
         if(head==0){
             head=new node(a);
             return;
@@ -39,7 +36,7 @@ class pr_queue {
     }
     node* dequeue() {
         if (isempty()) {
-//            std::cout << "the queue is empty";
+            std::cout << "the queue is empty";
             return nullptr;
         }
 
@@ -47,14 +44,14 @@ class pr_queue {
         node* premin = nullptr;
         node* p = head;
 
-        // اگر صف فقط یک گره دارد
+
         if (head->next == nullptr) {
             node* temp = head->data;
-            head = nullptr; // صف خالی می‌شود
+            head = nullptr;
             return temp;
         }
 
-        // پیدا کردن گره با کمترین مقدار count
+
         while (p->next != nullptr) {
             if (p->next->data->count < min->data->count) {
                 premin = p;
@@ -63,14 +60,13 @@ class pr_queue {
             p = p->next;
         }
 
-        // حذف گره از صف
         if (min == head) {
-            head = head->next; // حذف گره سر
+            head = head->next;
         } else {
-            premin->next = min->next; // حذف گره از وسط یا انتها
+            premin->next = min->next;
         }
 
-        min->next = nullptr; // قطع اتصال گره حذف‌شده
+        min->next = nullptr;
         return min->data;
     }
 
