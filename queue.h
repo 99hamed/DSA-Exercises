@@ -13,6 +13,7 @@ struct node {
     node* left;
     node(string w = "", int c =0) : word(w), count(c), next(nullptr),right(nullptr),left(nullptr),data(nullptr) {}
     node(node* d):data(d), next(nullptr),right(nullptr),left(nullptr){}
+    node(string w,string c): word(w),code(c){}
 };
 
 class pr_queue {
@@ -76,6 +77,8 @@ class pr_queue {
         else
             return false;
     }
+
+
 
 };
 
