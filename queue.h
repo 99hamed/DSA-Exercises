@@ -5,15 +5,15 @@
 using namespace std;
 struct node {
     int count;
-    string word;
+    string character;
     string code;
     node* next;
-    node* data;
+    node* tree_node;
     node* right;
     node* left;
-    node(string w = "", int c =0) : word(w), count(c), next(nullptr),right(nullptr),left(nullptr),data(nullptr) {}
-    node(node* d):data(d), next(nullptr),right(nullptr),left(nullptr){}
-    node(string w,string c): word(w),code(c){}
+    node(string w = "", int c =0) : character(w), count(c), next(nullptr),right(nullptr),left(nullptr),tree_node(nullptr) {}
+    node(node* d):tree_node(d), next(nullptr),right(nullptr),left(nullptr){}
+
 };
 
 class pr_queue {
@@ -47,14 +47,14 @@ class pr_queue {
 
 
         if (head->next == nullptr) {
-            node* temp = head->data;
+            node* temp = head->tree_node;
             head = nullptr;
             return temp;
         }
 
 
         while (p->next != nullptr) {
-            if (p->next->data->count < min->data->count) {
+            if (p->next->tree_node->count < min->tree_node->count) {
                 premin = p;
                 min = p->next;
             }
@@ -68,7 +68,7 @@ class pr_queue {
         }
 
         min->next = nullptr;
-        return min->data;
+        return min->tree_node;
     }
 
     bool isempty() {
