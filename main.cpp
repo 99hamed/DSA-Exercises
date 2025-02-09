@@ -1,29 +1,28 @@
 #include <iostream>
 #include "queue.h"
-#include <fstream>
 #include <bitset>
-#include <cstring>
+#include "huffman_coding.h"
 using namespace std;
-
+/*
 //CLASSES==========================================================================================================
 class huffman_coding {
     node *head;
-   node *root = nullptr;
+    node *root ;
     string phrase;
     string encoded="";
 
     public:
 
-    huffman_coding(string w = "") : phrase(w), head(nullptr) {}
+    huffman_coding(string w = "") : phrase(w), head(nullptr),root(nullptr) {}
 
     node* getroot(){
         return root;
     }
-    node *in_list(string a) {
+    node *find_in_list(string a) {
 
         node *temp = head;
         while (temp != nullptr) {
-            if (temp->word == a)
+            if (temp->character == a)
                 return temp;
             temp = temp->next;
         }
@@ -35,7 +34,7 @@ class huffman_coding {
     void make_table() {
 
         for (char c: phrase) {
-            node *q = in_list(string(1, c));
+            node *q = find_in_list(string(1, c));
 
             if (q != nullptr) {
                 q->count++;
@@ -65,7 +64,7 @@ class huffman_coding {
             }
             node *b = q.dequeue();
 
-            root = new node(b->word + a->word, a->count + b->count);
+            root = new node(b->character + a->character, a->count + b->count);
 
             root->left = a;
             root->right = b;
@@ -96,27 +95,28 @@ class huffman_coding {
         node* p=head;
 
         while(p!= nullptr){
-            cout<<p->word<<"    "<<p->code<<endl;
+            cout<<p->character<<"    "<<p->code<<endl;
             p=p->next;
         }
     }
-    void encoding(){
+    void encode(){
+        make_table();
+        node *q = make_huffman_tree();
+        generateCodes(q, "");
+
+
         for (char c: phrase){
-            encoded+= (in_list(string(1,c))->code);
+            encoded+= (find_in_list(string(1,c))->code);
         }
     }
-    node *getter() {
-        return head;
-    }
-
-    void saveCompressedTextFile(const string& filename) {
+    void saveCompressedTextFile(string phrase ,const string& filename) {
         ofstream outFile(filename);
         if (!outFile) {
             cerr << "Error opening file for writing!\n";
             return;
         }
 
-        outFile << encoded << endl;
+        outFile << phrase<< endl;
 
         outFile.close();
         cout << "Compressed text file saved as " << filename << endl;
@@ -138,48 +138,85 @@ class huffman_coding {
     }
 
 
-    void saveStringAsBinaryFile(const string& binaryString, const string& filename) {
-        ofstream outFile(filename, ios::binary);
-        if (!outFile) {
-            cerr << "eror occurred!\n";
+    void saveBinaryDataToFile(const string& binaryString, const string& filename) {
+        if (binaryString.empty()) {
+            cerr << "Error: Binary string is empty!" << endl;
             return;
         }
 
+        ofstream outFile(filename, ios::binary);
+        if (!outFile) {
+            cerr << "Error: Failed to open file!" << endl;
+            return;
+        }
 
-        for (size_t i = 0; i < binaryString.size(); i += 8) {
+        size_t totalBits = binaryString.size();
+        size_t fullBytesCount = totalBits / 8;
+        size_t remainingBits = totalBits % 8;
+        unsigned char paddingBits = (remainingBits == 0) ? 0 : (8 - remainingBits);
+
+
+
+
+
+        for (size_t i = 0; i < fullBytesCount * 8; i += 8) {
             string byteChunk = binaryString.substr(i, 8);
-
-
-            while (byteChunk.length() < 8) {
-                byteChunk += "0";
-            }
-
-            unsigned char byte = bitset<8>(byteChunk).to_ulong();
+            unsigned char byte = static_cast<unsigned char>(bitset<8>(byteChunk).to_ulong());
             outFile.write(reinterpret_cast<const char*>(&byte), 1);
         }
 
+
+        if (remainingBits > 0) {
+            string lastByteChunk = binaryString.substr(fullBytesCount * 8, remainingBits);
+            lastByteChunk.append(paddingBits, '0');
+
+            unsigned char lastByte = static_cast<unsigned char>(bitset<8>(lastByteChunk).to_ulong());
+            outFile.write(reinterpret_cast<const char*>(&lastByte), 1);
+        }
+        outFile.write(reinterpret_cast<const char*>(&paddingBits), 1);
+
         outFile.close();
-        cout << "file saved successfully " << filename << endl;
+        cout << "File saved successfully: " << filename << endl;
     }
 
-    string readBinaryFileAsString(const string& filename) {
+
+
+    string readBinaryDataFromFile(const string& filename) {
         ifstream inFile(filename, ios::binary);
         if (!inFile) {
-            cerr << "eror in opening file\n";
+            cerr << "Error: Failed to open file!" << endl;
             return "";
         }
 
-        string binaryData = "";
-        char byteChar;
-        while (inFile.read(&byteChar, sizeof(byteChar))) {
-            bitset<8> byte((unsigned char)byteChar);
-            binaryData += byte.to_string();
+
+        string binaryData;
+        vector<char> fileBuffer((istreambuf_iterator<char>(inFile)), istreambuf_iterator<char>());
+        inFile.close();
+
+        if (fileBuffer.empty()) {
+            cerr << "Error: File is empty!" << endl;
+            return "";
         }
 
-        inFile.close();
-        return binaryData.substr(0,encoded.size());
+
+        unsigned char paddingBits = static_cast<unsigned char>(fileBuffer.back());
+        fileBuffer.pop_back();
+
+
+        for (char byte : fileBuffer) {
+            binaryData += bitset<8>(static_cast<unsigned char>(byte)).to_string();
+        }
+
+
+        if (paddingBits > 0 && paddingBits < 8) {
+            binaryData.erase(binaryData.size() - paddingBits);
+        }
+
+        return binaryData;
     }
-    string decodeHuffman(node* root, const string& encodedStr) {
+
+
+    string decode(node* root, const string& encodedStr) {
         string decodedText = "";
         node* current = root;
 
@@ -192,7 +229,7 @@ class huffman_coding {
 
 
             if (0==current->left && current->right==0) {
-                decodedText += current->word;
+                decodedText += current->character;
                 current = root;
             }
         }
@@ -205,41 +242,35 @@ class huffman_coding {
     }
 
 };
-
+*/
 
 
     int main() {
-//    string name = "aaaaagfaassddffa";
 
-        huffman_coding f("abhdhhhhjhjjjjjhhdgf");
-//      f.loadTextFile("c23.txt");
-        cout<<"abhdhhhhjhjjjjjhhdgdf"<<endl;
-        f.make_table();
-        node *p = f.getter();
-        while (p != nullptr) {
-            cout << p->word << "    " << p->count << endl;
-            p = p->next;
+
+        huffman_coding f;
+        int choise;
+        bool over=false;
+        cout << "welcome to huffman encoding" << endl;
+        while(!over) {
+            cout << "1.encoding \n2.decoding \n3.exit" << endl;
+            cout << "enter your choise :";
+            cin >> choise;
+
+            if (choise == 1) {
+                f.loadTextFile("test.txt");
+                f.encode();
+                f.saveBinaryDataToFile(f.getstr(), "compressed");
+                f.saveCompressedTextFile(f.getstr(), "encoded.txt");
+            } else if (choise == 2) {
+                string binaryString = f.readBinaryDataFromFile("compressed");
+                string phrase = f.decode(f.getroot(), binaryString);
+                f.saveCompressedTextFile(phrase, "decoded.txt");
+            }
+            else if(choise==3){
+                cout<<"hope you enjoy";
+                over=true;}
         }
-
-        node *q = f.make_huffman_tree();
-        f.generateCodes(q, "");
-        cout << "Root: " << q->word << "          " << q->count << endl;
-
-        if (q->left != nullptr)
-            cout << "Left: " << q->left->word << "          " << q->left->count << endl;
-
-        if (q->right != nullptr)
-            cout << "Right: " << q->right->word << "          " << q->right->count << endl;
-        f.printHuffmanCodes();
-        f.encoding();
-        cout << f.getstr() << endl;
-        f.saveStringAsBinaryFile(f.getstr(),"compressed.bin");
-
-
-
-        string binaryString = f.readBinaryFileAsString("compressed.bin");
-        cout<<binaryString<<endl;
-        cout<<f.decodeHuffman(f.getroot(),binaryString);
 
         return 0;
     }
