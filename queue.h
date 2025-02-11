@@ -34,6 +34,7 @@ class pr_queue {
         p->next=temp;
         temp->next=0;
 
+
     }
     node* dequeue() {
         if (isempty()) {
@@ -77,6 +78,7 @@ class pr_queue {
         else
             return false;
     }
+
 
 
 

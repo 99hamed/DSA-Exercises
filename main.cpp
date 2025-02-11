@@ -21,8 +21,8 @@ int main() {
             if (choise == 1) {
                 f.loadTextFile("test.txt");
                 f.encode();
-                f.saveBinaryDataToFile(f.getstr(), "compressed");
-                f.saveCompressedTextFile(f.getstr(), "encoded.txt");
+                f.saveBinaryDataToFile(f.get_encoded(), "compressed");
+                f.saveCompressedTextFile(f.get_encoded(), "encoded.txt");
             } else if (choise == 2) {
                 string binaryString = f.readBinaryDataFromFile("compressed");
                 string phrase = f.decode(f.getroot(), binaryString);

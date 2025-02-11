@@ -30,40 +30,13 @@ void huffman_coding::make_table() {
             node *p = new node(string(1, c), 1);
             p->next = head;
             head = p;
+
         }
+
     }
+
 }
 
-
-node * huffman_coding::make_huffman_tree() {
-    pr_queue q;
-    node *p = head;
-
-    while (p != nullptr) {
-        q.enqueue(p);
-        p = p->next;
-    }
-    node *temp = 0;
-    while (!q.isempty()) {
-        node *a = q.dequeue();
-        if (q.isempty()) {
-            root = a;
-            break;
-        }
-        node *b = q.dequeue();
-
-        root = new node(b->character + a->character, a->count + b->count);
-
-        root->left = a;
-        root->right = b;
-
-        q.enqueue(root);
-    }
-
-
-    return root;
-
-}
 
 
 void huffman_coding::generateCodes(node *root, string code) {
@@ -80,14 +53,16 @@ void huffman_coding::generateCodes(node *root, string code) {
 
 void huffman_coding::encode(){
     make_table();
-    node *q = make_huffman_tree();
-    generateCodes(q, "");
+    huffman_tree p;
+    root = p.make_huffman_tree(head);
+    generateCodes(root, "");
 
 
     for (char c: phrase){
         encoded+= (find_in_list(string(1,c))->code);
     }
 }
+
 void huffman_coding::saveCompressedTextFile(string phrase ,const string& filename) {
 ofstream outFile(filename);
 if (!outFile) {
@@ -107,15 +82,19 @@ cout << "Compressed text file saved as " << filename << endl;
 void huffman_coding::loadTextFile(const string& filename) {
     ifstream inFile(filename);
     if (!inFile) {
-        cerr << "eror in open file!\n";
+        cerr << "Error: Failed to open file!\n";
         return;
     }
-    phrase= "";
-    inFile >> phrase;
-    inFile.close();
-    cout << "file text read!\n";
-}
 
+    phrase.clear();
+    string line;
+    while (getline(inFile, line)) {
+        phrase += line + '\n';
+    }
+
+    inFile.close();
+    cout << "File text read!\n";
+}
 
 void huffman_coding::saveBinaryDataToFile(const string& binaryString, const string& filename) {
     if (binaryString.empty()) {
@@ -134,16 +113,11 @@ void huffman_coding::saveBinaryDataToFile(const string& binaryString, const stri
     size_t remainingBits = totalBits % 8;
     unsigned char paddingBits = (remainingBits == 0) ? 0 : (8 - remainingBits);
 
-
-
-
-
     for (size_t i = 0; i < fullBytesCount * 8; i += 8) {
         string byteChunk = binaryString.substr(i, 8);
         unsigned char byte = static_cast<unsigned char>(bitset<8>(byteChunk).to_ulong());
         outFile.write(reinterpret_cast<const char*>(&byte), 1);
     }
-
 
     if (remainingBits > 0) {
         string lastByteChunk = binaryString.substr(fullBytesCount * 8, remainingBits);
@@ -158,15 +132,12 @@ void huffman_coding::saveBinaryDataToFile(const string& binaryString, const stri
     cout << "File saved successfully: " << filename << endl;
 }
 
-
-
 string huffman_coding::readBinaryDataFromFile(const string& filename) {
     ifstream inFile(filename, ios::binary);
     if (!inFile) {
         cerr << "Error: Failed to open file!" << endl;
         return "";
     }
-
 
     string binaryData;
     vector<char> fileBuffer((istreambuf_iterator<char>(inFile)), istreambuf_iterator<char>());
@@ -177,15 +148,12 @@ string huffman_coding::readBinaryDataFromFile(const string& filename) {
         return "";
     }
 
-
     unsigned char paddingBits = static_cast<unsigned char>(fileBuffer.back());
     fileBuffer.pop_back();
-
 
     for (char byte : fileBuffer) {
         binaryData += bitset<8>(static_cast<unsigned char>(byte)).to_string();
     }
-
 
     if (paddingBits > 0 && paddingBits < 8) {
         binaryData.erase(binaryData.size() - paddingBits);
@@ -194,7 +162,6 @@ string huffman_coding::readBinaryDataFromFile(const string& filename) {
     return binaryData;
 }
 
-
 string huffman_coding::decode(node* root, const string& encodedStr) {
     string decodedText = "";
     node* current = root;
@@ -202,7 +169,7 @@ string huffman_coding::decode(node* root, const string& encodedStr) {
     for (char bit : encodedStr) {
         if (bit == '0') {
             current = current->left;
-        } else {
+        } else if (bit=='1'){
             current = current->right;
         }
 
@@ -216,7 +183,7 @@ string huffman_coding::decode(node* root, const string& encodedStr) {
     return decodedText;
 }
 
-string huffman_coding::getstr(){
+string huffman_coding::get_encoded(){
     return encoded;
 }
 

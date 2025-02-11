@@ -5,6 +5,8 @@
 #include <fstream>
 #include <bitset>
 #include <vector>
+#include<sstream>
+#include"huffman_tree.h"
 using namespace std;
 class huffman_coding {
 
@@ -19,7 +21,7 @@ class huffman_coding {
         node* getroot();
         node *find_in_list(string );
         void make_table() ;
-        node * make_huffman_tree();
+//        node * make_huffman_tree();
         void generateCodes(node*, string);
         void encode();
 
@@ -29,7 +31,7 @@ class huffman_coding {
         string readBinaryDataFromFile(const string& );
 
         string decode(node* , const string& );
-        string getstr();
+        string get_encoded();
 
 
 

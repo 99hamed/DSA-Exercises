@@ -1,0 +1,17 @@
+# ninja log v5
+20	568	7609867277548260	CMakeFiles/huffman_coding.dir/main.cpp.obj	8c14f0d1856ec472
+700	867	7609867280441430	huffman_coding.exe	dfaf0538c1354636
+25	700	7609867278924912	CMakeFiles/huffman_coding.dir/huffman_coding.cpp.obj	4431c6159c03963f
+4	458	7609934443371873	CMakeFiles/huffman_coding.dir/main.cpp.obj	8c14f0d1856ec472
+10	523	7609934444021836	CMakeFiles/huffman_coding.dir/huffman_coding.cpp.obj	4431c6159c03963f
+523	832	7609934447054438	huffman_coding.exe	dfaf0538c1354636
+19	422	7609937637456389	CMakeFiles/huffman_coding.dir/main.cpp.obj	8c14f0d1856ec472
+24	519	7609937638424082	CMakeFiles/huffman_coding.dir/huffman_coding.cpp.obj	4431c6159c03963f
+519	626	7609937639453905	huffman_coding.exe	dfaf0538c1354636
+4	480	7609939770824457	CMakeFiles/huffman_coding.dir/huffman_coding.cpp.obj	4431c6159c03963f
+481	592	7609939771895544	huffman_coding.exe	dfaf0538c1354636
+3	368	7609943531274457	CMakeFiles/huffman_coding.dir/huffman_coding.cpp.obj	4431c6159c03963f
+3	413	7609944920548105	CMakeFiles/huffman_coding.dir/huffman_coding.cpp.obj	4431c6159c03963f
+413	504	7609944921428057	huffman_coding.exe	dfaf0538c1354636
+3	422	7609946700678567	CMakeFiles/huffman_coding.dir/huffman_coding.cpp.obj	4431c6159c03963f
+422	501	7609946701438249	huffman_coding.exe	dfaf0538c1354636
